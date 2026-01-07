@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Post;
 use Illuminate\Support\Facades\DB;
+use App\Http\Requests\StorePostRequest;
+use App\Http\Resources\PostResource;
 
 class PostController extends Controller
 {
@@ -14,43 +16,16 @@ class PostController extends Controller
      */
     public function index()
     {
-        return Post::all();
+        return PostResource::collection(Post::all());
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StorePostRequest $request)
     {
-        $data = [
-            'user_id' => 1,
-            'long_title' => 'Sample Post Long Title',
-            'short_title' => 'Sample Post Short Title',
-            'content' => 'This is a sample post content.',
-            'author' => 'John Doe',
-            'status' => 'draft',
-            'published_at' => null,
-            'category' => 'General',
-            'tags' => 'sample,post,blog',
-            'featured_image' => null,
-            'views_count' => 0,
-            'likes_count' => 0,
-            'comments_count' => 0,
-            'slug' => 'sample-post-title',
-            'excerpt' => 'This is a sample excerpt of the post.',
-            'meta_title' => 'Sample Post Meta Title',
-            'meta_description' => 'This is a sample meta description for the post.',
-            'meta_keywords' => 'sample,post,meta',
-            'is_featured' => false,
-            'is_archived' => false,
-            'archived_at' => null,
-            'last_edited_by' => null,
-            'last_edited_at' => null,
-            'source' => null,
-            'reading_time' => '5 min',
-            'language' => 'en'
-        ];
-        return Post::create($data);
+        $post = Post::create($request->validated());
+        return response()->json($post, 201);
     }
 
     /**
@@ -76,4 +51,4 @@ class PostController extends Controller
     {
         return Post::destroy($post->id);
     }
-}
+} 
