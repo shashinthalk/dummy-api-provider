@@ -18,5 +18,6 @@ Route::get('/user', function (Request $request) {
 
 Route::prefix('v1')->group(function () {
     // API Version 1 Routes
-    Route::apiResource('posts', PostController::class);
+    Route::apiResource('posts', PostController::class)
+        ->scoped(['post' => 'post_id']);
 });

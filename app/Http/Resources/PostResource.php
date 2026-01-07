@@ -40,7 +40,9 @@ class PostResource extends JsonResource
             'source' => $this->source,
             'reading_time' => $this->reading_time,
             'language' => $this->language,
-            'author' => new UserResource($this->author),
+            'author' => new UserResource(
+                $this->whenLoaded('author')
+            ),
         ];
     }
 }

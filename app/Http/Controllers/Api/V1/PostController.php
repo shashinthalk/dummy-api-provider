@@ -8,15 +8,29 @@ use App\Models\Post;
 use Illuminate\Support\Facades\DB;
 use App\Http\Requests\StorePostRequest;
 use App\Http\Resources\PostResource;
+use App\Models\User;
+use App\Services\PostService;
+
 
 class PostController extends Controller
 {
+
+    protected $postService;
+
+    public function __construct(PostService $postService)
+    {
+        $this->postService = $postService;
+    }
+
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        return PostResource::collection(Post::all());
+        $paginate = $request->boolean('paginate', false);
+        $perPage = $paginate ? $request->input('per_page', 5): null;
+        $posts = $this->postService->getPosts($perPage);
+        return PostResource::collection($posts);
     }
 
     /**
@@ -24,8 +38,11 @@ class PostController extends Controller
      */
     public function store(StorePostRequest $request)
     {
-        $post = Post::create($request->validated());
-        return response()->json($post, 201);
+        $requestData = $request->validated();
+        $identifyUser = User::where('user_id', $requestData['user_id'])->firstOrFail();
+        $requestData['user_id'] = (int) $identifyUser->id;
+        $createPost = Post::create($requestData);
+        return new PostResource($createPost);
     }
 
     /**
@@ -33,7 +50,7 @@ class PostController extends Controller
      */
     public function show(Post $post)
     {
-        return response()->json($post);
+        return PostResource::make($post->load('author'));
     }
 
     /**
